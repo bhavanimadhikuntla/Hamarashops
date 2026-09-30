@@ -8,183 +8,666 @@
 [![Google Cloud Run](https://img.shields.io/badge/GCP-Cloud%20Run-4285F4.svg?style=flat-square&logo=googlecloud)](https://cloud.google.com/run)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 
-**HamaraShops.ai** is an enterprise-grade full-stack platform featuring an event-driven Java 21 Spring Boot microservices backend and a modern React 19 single-page application (SPA) frontend. Built for high performance, fault isolation, and cloud-native scalability, the architecture decouples domain capabilities into autonomous services orchestrated via a Spring Cloud WebFlux API Gateway and deployed serverlessly on Google Cloud Run.
+# HamaraShops-AI
+
+## AI-Powered Enterprise Platform with Multi-Agent Chatbot
+
+HamaraShops-AI is an AI-powered enterprise web platform designed to provide intelligent business information, industry-specific AI solutions, and appointment assistance through a modern web application.
+
+The platform combines a **React/Vite frontend**, **Spring Boot microservices**, an **API Gateway**, and a **Java-based multi-agent chatbot** powered by Groq.
 
 ---
 
-## 🌐 Live Production Endpoints
+## 🚀 Key Features
 
-| Service Name | Technology / Role | Live Production Cloud Run URL | Status |
-| :--- | :--- | :--- | :---: |
-| **Frontend SPA** | React 19 + Vite + Nginx | [frontend-27562154208.asia-south1.run.app](https://frontend-27562154208.asia-south1.run.app) | `PASS (200 OK)` |
-| **API Gateway** | Spring Cloud Gateway WebFlux | `https://api-gateway-27562154208.asia-south1.run.app` | `PASS (200 OK)` |
-| **Content Service** | Spring Boot REST API | `https://content-service-y3nfalli7a-el.a.run.app` | `PASS (200 OK)` |
-| **Business Service**| Spring Boot REST API | `https://business-service-27562154208.asia-south1.run.app` | `PASS (200 OK)` |
-| **Contact Service** | Spring Boot REST API | `https://contact-service-27562154208.asia-south1.run.app` | `PASS (200 OK)` |
-
----
-
-## 🏗 System Architecture
-
-```
-+-----------------------------------------------------------------------------------+
-|                                 CLIENT LAYER                                      |
-|                                                                                   |
-|      +--------------------------------------------------------------------+       |
-|      |                        React 19 SPA Frontend                       |       |
-|      |         URL: https://frontend-27562154208.asia-south1.run.app      |       |
-|      +----------------------------------+---------------------------------+       |
-+-----------------------------------------|-----------------------------------------+
-                                          | HTTPS / REST JSON
-                                          v
-+-----------------------------------------------------------------------------------+
-|                              API GATEWAY LAYER                                    |
-|                                                                                   |
-|      +--------------------------------------------------------------------+       |
-|      |                    Spring Cloud API Gateway                        |       |
-|      |        URL: https://api-gateway-27562154208.asia-south1.run.app   |       |
-|      |       CORS Validation | Path Predicate Matching | Direct HTTP      |       |
-|      +-----+----------------------------+---------------------------+-----+       |
-+------------|----------------------------|---------------------------|-------------+
-             |                            |                           |
-             | /api/v1/products/**        | /api/v1/industries/**     | /api/v1/contact/**
-             | /api/v1/solutions/**       | /api/v1/careers/**        |
-             v                            v                           v
-+------------------------+   +------------------------+   +------------------------+
-|    Content Service     |   |    Business Service    |   |    Contact Service     |
-|  (Catalog & Solutions) |   |  (Industries & Jobs)   |   | (Inquiries & Leads)    |
-| Cloud Run Microservice |   | Cloud Run Microservice |   | Cloud Run Microservice |
-+------------------------+   +------------------------+   +------------------------+
-```
+* Modern React/Vite web application
+* Spring Boot backend services
+* Spring Cloud API Gateway
+* Java-based multi-agent chatbot
+* Company information assistant
+* Industry-specific AI solutions assistant
+* Appointment assistance
+* Groq LLM integration
+* Centralized company and content data
+* REST APIs
+* Health and actuator endpoints
+* Responsive chatbot interface
+* Frontend-to-backend end-to-end integration
 
 ---
 
-## ✨ Key Architectural Highlights
+# 🏗️ System Architecture
 
-- **Single Public Ingress**: All client traffic passes through the Spring Cloud API Gateway, masking internal microservice topographies.
-- **Direct HTTP Architecture**:
-  - `Local Development`: High-throughput direct HTTP routing from the API Gateway (`:8080`) to downstream microservices (`:8081`, `:8082`, `:8083`).
-  - `Cloud Run Production`: Directly leverages Google Cloud Run native ingress with environment-variable driven service URLs (`CONTENT_SERVICE_URL`, `BUSINESS_SERVICE_URL`, `CONTACT_SERVICE_URL`).
-- **Reactive CORS WebFilter**: Global cross-origin configuration managing preflight `OPTIONS` requests, custom allowed origins, and header policies.
-- **Modern React 19 Client**: High-speed frontend built with Vite 5.4, Tailwind CSS, Lucide icons, Framer Motion animations, and GPU-accelerated WebGL hero canvas shaders.
-- **Centralized Axios Interceptors**: Unified HTTP client with automatic response unwrapping and global error telemetry handling.
-- **Multi-Stage Docker Packaging**: Lightweight container builds using Eclipse Temurin 21 JRE Alpine (~160MB) for Spring Boot and Nginx Alpine (~25MB) for the React SPA.
-
----
-
-## 📁 Repository Directory Structure
-
-```
-HamaraShops-Ai/
-├── api-gateway/            # Spring Cloud WebFlux API Gateway (Port 8080)
-├── business-service/       # Industries & Careers Microservice (Port 8082)
-├── contact-service/        # Lead Inquiries & Tracking Microservice (Port 8083)
-├── content-service/        # AI Products, Solutions & Services Microservice (Port 8081)
-└── frontend/               # React 19 + Vite Single Page Application (Port 5173 / Port 80)
+```text
+                         HAMARASHOPS-AI
+                              │
+                              ▼
+                    ┌───────────────────┐
+                    │   React Frontend  │
+                    │     Vite + UI     │
+                    └─────────┬─────────┘
+                              │
+                              │ REST API
+                              ▼
+                    ┌───────────────────┐
+                    │    API Gateway    │
+                    │      Port 8080    │
+                    └─────────┬─────────┘
+                              │
+              ┌───────────────┼────────────────┐
+              │               │                │
+              ▼               ▼                ▼
+       ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+       │   Business  │ │   Content   │ │   Contact   │
+       │   Service   │ │   Service   │ │   Service   │
+       │    :8082    │ │    :8081    │ │    :8083    │
+       └──────┬──────┘ └─────────────┘ └─────────────┘
+              │
+              ▼
+       ┌─────────────────┐
+       │ ChatOrchestrator │
+       └────────┬────────┘
+                │
+       ┌────────┼──────────┐
+       │        │          │
+       ▼        ▼          ▼
+   Company   Industry   Appointment
+    Agent      Agent       Agent
+       │        │          │
+       └────────┼──────────┘
+                ▼
+          ┌────────────┐
+          │ Groq / LLM │
+          └────────────┘
 ```
 
 ---
 
-## 🛠 Technology Stack Details
+# 📁 Project Structure
 
-### Backend Stack
-- **Java**: JDK 21 (Eclipse Temurin)
-- **Framework**: Spring Boot `4.1.0`
-- **Cloud Infrastructure**: Spring Cloud `2025.1.2` (Gateway WebFlux, LoadBalancer, Actuator)
-- **Build Tool**: Apache Maven `3.9.9`
-
-### Frontend Stack
-- **Library**: React `19.0.0`
-- **Build Tool**: Vite `5.4.11`
-- **Routing**: React Router DOM `7.1.5`
-- **HTTP Client**: Axios `1.7.9`
-- **Styling & UI**: Tailwind CSS `3.4.17`, Framer Motion `12.4.3`, Lucide Icons `0.475.0`
-- **Production Web Server**: Nginx Alpine
+```text
+hamarashops.ai-main/
+│
+├── api-gateway/
+│   ├── src/
+│   └── pom.xml
+│
+├── business-service/
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/
+│   │   │   │   └── com/hamarashops/
+│   │   │   │       └── ai/
+│   │   │   │           └── service/
+│   │   │   │               ├── CompanyAgentImpl.java
+│   │   │   │               ├── IndustryAgentImpl.java
+│   │   │   │               ├── AppointmentAgentImpl.java
+│   │   │   │               ├── ChatOrchestrator.java
+│   │   │   │               └── GroqService.java
+│   │   │   │
+│   │   │   └── resources/
+│   │   └── pom.xml
+│   │
+│   └── .env
+│
+├── content-service/
+│   ├── src/
+│   └── pom.xml
+│
+├── contact-service/
+│   ├── src/
+│   └── pom.xml
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   └── common/
+│   │   │       └── Chatbot.jsx
+│   │   ├── services/
+│   │   │   └── apiClient.js
+│   │   └── ...
+│   ├── package.json
+│   └── vite.config.js
+│
+└── README.md
+```
 
 ---
 
-## 🚦 API Endpoints Reference
+# 🤖 Multi-Agent Chatbot
 
-| Microservice | HTTP Method | Gateway Endpoint Path | Description |
-| :--- | :---: | :--- | :--- |
-| **Content Service** | `GET` | `/api/v1/products` | Returns list of AI Product Suite offerings |
-| **Content Service** | `GET` | `/api/v1/products/{slug}` | Returns detailed product profile by slug |
-| **Content Service** | `GET` | `/api/v1/solutions` | Returns industry solution blueprints |
-| **Content Service** | `GET` | `/api/v1/services` | Returns enterprise consulting & integration services |
-| **Content Service** | `GET` | `/api/v1/case-studies` | Returns customer success stories & benchmarks |
-| **Business Service**| `GET` | `/api/v1/industries` | Returns active industry vertical solutions |
-| **Business Service**| `GET` | `/api/v1/careers` | Returns open engineering & AI job opportunities |
-| **Contact Service** | `POST`| `/api/v1/contact/inquire` | Accepts inquiry form submission & returns tracking receipt ID |
+The chatbot is implemented entirely in **Java using Spring Boot**.
+
+There is **no separate Python AI service**.
+
+The chatbot uses a `ChatOrchestrator` to determine which specialized agent should handle a user's request.
+
+## Agents
+
+### 1. Company Agent
+
+Handles questions related to:
+
+* Company information
+* CEO
+* Mission
+* Vision
+* Company journey
+* Company locations
+* General HamaraShops.ai information
+
+Example:
+
+```text
+User:
+Who is the CEO of HamaraShops.ai?
+
+Company Agent:
+CEO: Dheerendar Srivastav –
+Founder & Chief Executive Officer.
+```
 
 ---
 
-## 💻 Local Development Quickstart
+### 2. Industry Agent
 
-### Prerequisites
-- **JDK 21** or later installed
-- **Node.js 20+** and **npm 10+** installed
-- **Apache Maven 3.9+** installed
+Handles industry-related questions including:
 
-### 1. Clone the Repository
+* Retail
+* Healthcare
+* Financial Services
+* Manufacturing
+* Industry-specific AI solutions
+* AI use cases
+
+Example:
+
+```text
+User:
+What AI services do you provide for retail?
+
+Industry Agent:
+Provides retail-focused AI solutions and use cases.
+```
+
+---
+
+### 3. Appointment Agent
+
+Handles appointment-related requests including:
+
+* Schedule a meeting
+* Book a consultation
+* Product discussion
+* AI architecture discussion
+* General inquiry
+
+The agent does not falsely claim that an appointment has been booked or confirmed.
+
+Example:
+
+```text
+User:
+I want to schedule an appointment.
+
+Appointment Agent:
+Provides guidance for using the Schedule Appointment
+option on the website.
+```
+
+---
+
+# 🔀 ChatOrchestrator
+
+The `ChatOrchestrator` is responsible for routing user requests to the appropriate agent.
+
+```text
+                    User Message
+                         │
+                         ▼
+                  ChatOrchestrator
+                         │
+          ┌──────────────┼──────────────┐
+          │              │              │
+          ▼              ▼              ▼
+      Appointment      Industry       Company
+         Agent          Agent          Agent
+```
+
+Examples of routing:
+
+```text
+"Schedule a meeting"
+        ↓
+Appointment Agent
+
+"AI solutions for retail"
+        ↓
+Industry Agent
+
+"Who is the CEO?"
+        ↓
+Company Agent
+```
+
+---
+
+# 🌐 API Endpoints
+
+## API Gateway
+
+```text
+http://localhost:8080
+```
+
+### Chat
+
+```http
+POST /api/v1/chat
+```
+
+Request:
+
+```json
+{
+  "message": "Who is the CEO of HamaraShops.ai?"
+}
+```
+
+Response:
+
+```json
+{
+  "agent": "Company Agent",
+  "message": "CEO: Dheerendar Srivastav..."
+}
+```
+
+---
+
+## Content Service
+
+```text
+http://localhost:8081
+```
+
+### Company Information
+
+```http
+GET /api/v1/company
+```
+
+The company information is loaded from:
+
+```text
+content-service/src/main/resources/data/company.json
+```
+
+The data includes:
+
+* Company name
+* CEO
+* Designation
+* Mission
+* Vision
+* Approach
+* Journey
+* Office locations
+
+---
+
+## Business Service
+
+```text
+http://localhost:8082
+```
+
+The Business Service contains the chatbot and business-related functionality.
+
+---
+
+## Contact Service
+
+```text
+http://localhost:8083
+```
+
+The Contact Service handles contact and appointment-related functionality.
+
+---
+
+# 💻 Frontend
+
+The frontend is built using:
+
+* React
+* Vite
+* Tailwind CSS
+* Axios
+* Lucide React
+
+The chatbot component is located at:
+
+```text
+frontend/src/components/common/Chatbot.jsx
+```
+
+The API client is located at:
+
+```text
+frontend/src/services/apiClient.js
+```
+
+The frontend communicates with the API Gateway:
+
+```text
+http://localhost:8080/api/v1
+```
+
+---
+
+# 🔄 End-to-End Chat Flow
+
+```text
+1. User opens the React website
+              │
+              ▼
+2. User opens the AI chatbot
+              │
+              ▼
+3. User enters a message
+              │
+              ▼
+4. React sends POST request
+              │
+              ▼
+   /api/v1/chat
+              │
+              ▼
+5. API Gateway receives request
+              │
+              ▼
+6. Request is routed to Business Service
+              │
+              ▼
+7. ChatOrchestrator analyzes the message
+              │
+              ▼
+8. Appropriate agent is selected
+              │
+              ▼
+9. Agent processes the request
+              │
+              ▼
+10. Groq LLM generates the response
+              │
+              ▼
+11. Response returns to React
+              │
+              ▼
+12. Chatbot displays the response
+```
+
+---
+
+# 🛠️ Technologies Used
+
+## Frontend
+
+| Technology   | Purpose                |
+| ------------ | ---------------------- |
+| React        | User interface         |
+| Vite         | Frontend build tool    |
+| Tailwind CSS | Styling                |
+| Axios        | REST API communication |
+| Lucide React | Icons                  |
+
+## Backend
+
+| Technology           | Purpose                         |
+| -------------------- | ------------------------------- |
+| Java 17              | Programming language            |
+| Spring Boot          | Backend framework               |
+| Spring Cloud Gateway | API Gateway                     |
+| Maven                | Build and dependency management |
+| REST APIs            | Service communication           |
+| Jackson              | JSON processing                 |
+| Actuator             | Health monitoring               |
+
+## AI
+
+| Technology        | Purpose                  |
+| ----------------- | ------------------------ |
+| Groq              | LLM API                  |
+| Java-based Agents | Multi-agent architecture |
+| ChatOrchestrator  | Agent routing            |
+
+---
+
+# ⚙️ Prerequisites
+
+Install the following:
+
+* Java 17
+* Maven 3.9+
+* Node.js
+* npm
+* Git
+
+Verify Java:
+
 ```bash
-git clone https://github.com/YOUR_GITHUB_USERNAME/HamaraShops-Ai.git
-cd HamaraShops-Ai
+java -version
 ```
 
-### 2. Start Backend Microservices (Exact Order)
-Open separate terminal tabs for each service (or start in Spring Tool Suite):
+Verify Maven:
+
 ```bash
-# 1. Content Service (Port 8081)
-cd content-service && mvn spring-boot:run
-
-# 2. Business Service (Port 8082)
-cd business-service && mvn spring-boot:run
-
-# 3. Contact Service (Port 8083)
-cd contact-service && mvn spring-boot:run
-
-# 4. API Gateway (Port 8080)
-cd api-gateway && mvn spring-boot:run
+mvn -version
 ```
 
-### 3. Start React Frontend
+Verify Node.js:
+
 ```bash
-# 5. Frontend (Port 5173)
+node -v
+```
+
+Verify npm:
+
+```bash
+npm -v
+```
+
+---
+
+# 🔐 Environment Configuration
+
+The Business Service requires a Groq API key.
+
+Create/configure:
+
+```text
+business-service/.env
+```
+
+Example:
+
+```env
+GROQ_API_KEY=your_groq_api_key
+```
+
+Do not commit the real API key to GitHub.
+
+Add `.env` to `.gitignore`:
+
+```text
+.env
+```
+
+---
+
+# ▶️ Running the Project
+
+Start the backend services first.
+
+## 1. Content Service
+
+```bash
+cd content-service
+mvn spring-boot:run
+```
+
+Runs on:
+
+```text
+http://localhost:8081
+```
+
+---
+
+## 2. Business Service
+
+Open another terminal:
+
+```bash
+cd business-service
+mvn spring-boot:run
+```
+
+Runs on:
+
+```text
+http://localhost:8082
+```
+
+---
+
+## 3. Contact Service
+
+Open another terminal:
+
+```bash
+cd contact-service
+mvn spring-boot:run
+```
+
+Runs on:
+
+```text
+http://localhost:8083
+```
+
+---
+
+## 4. API Gateway
+
+Open another terminal:
+
+```bash
+cd api-gateway
+mvn spring-boot:run
+```
+
+Runs on:
+
+```text
+http://localhost:8080
+```
+
+---
+
+## 5. Frontend
+
+Open another terminal:
+
+```bash
 cd frontend
 npm install
 npm run dev
 ```
-*Frontend local server runs at `http://localhost:5173`*
+
+Vite will display the local frontend URL, normally:
+
+```text
+http://localhost:5173
+```
 
 ---
 
-## 🐳 Docker & Cloud Run Deployment
+# 🧪 Testing
 
-### Building Docker Images Locally
-Each microservice and the frontend contains a production-ready `Dockerfile`:
-```bash
-# Build API Gateway Container Image
-docker build -t hamarashops/api-gateway:latest ./api-gateway
+## Test Company Agent
 
-# Build Frontend Container Image
-docker build -t hamarashops/frontend:latest ./frontend
+```http
+POST http://localhost:8080/api/v1/chat
 ```
 
-### Deploying to Google Cloud Run via gcloud CLI
-```bash
-# 1. Authenticate with GCP
-gcloud auth configure-docker asia-south1-docker.pkg.dev
+Request:
 
-# 2. Remote Build using Google Cloud Build
-gcloud builds submit --tag asia-south1-docker.pkg.dev/hamarashops-ai/hamarashops-repo/api-gateway:v1.0.0 ./api-gateway
+```json
+{
+  "message": "Who is the CEO of HamaraShops.ai?"
+}
+```
 
-# 3. Deploy API Gateway to Cloud Run
-gcloud run deploy api-gateway \
-  --image asia-south1-docker.pkg.dev/hamarashops-ai/hamarashops-repo/api-gateway:v1.0.0 \
-  --platform managed \
-  --region asia-south1 \
-  --allow-unauthenticated \
-  --set-env-vars SPRING_PROFILES_ACTIVE=cloud
+Expected routing:
+
+```text
+Company Agent
+```
+
+---
+
+## Test Industry Agent
+
+Request:
+
+```json
+{
+  "message": "What AI services do you provide for retail?"
+}
+```
+
+Expected routing:
+
+```text
+Industry Agent
+```
+
+---
+
+## Test Appointment Agent
+
+Request:
+
+```json
+{
+  "message": "I want to schedule an appointment"
+}
+```
+
+Expected routing:
+
+```text
+Appointment Agent
+```
+
+---
+
+## Test Company Locations
+
+Request:
+
+```json
+{
+  "message": "Where are the HamaraShops.ai offices located?"
+}
+```
+
+Expected routing:
+
+```text
+Company Agent
 ```
 
 ---
@@ -193,4 +676,4 @@ gcloud run deploy api-gateway \
 
 Distributed under the **MIT License**. See `LICENSE` for details.
 
-Developed with ❤️ by **Gorantla Charan Ranga (Full Stack Java Developer)**.
+Developed with ❤️ by **Bhavani (Full Stack Java Developer)**.
